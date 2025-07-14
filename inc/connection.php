@@ -4,7 +4,7 @@ function dbconnect()
     static $bdd = null;
 
     if ($bdd === null) {
-        $bdd = mysqli_connect('localhost', 'root', 's4xGjVcC', 'db_s2_ETU004128');
+        $bdd = mysqli_connect('localhost', 'root', '', 'exam');
 
         if (!$bdd) {
            
