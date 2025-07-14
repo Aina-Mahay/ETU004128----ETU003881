@@ -12,9 +12,7 @@
 
     <label>Catégorie ID :</label><br>
     <input type="number" name="categorie" required><br><br>
-
-    <label>Membre ID :</label><br>
-    <input type="number" name="membre" required><br><br>
+    <input type="hidden" name="membre" value="<?=$_SESSION['user_id']?>">
 
     <label>Images de l'objet :</label><br>
     <input type="file" name="images[]" multiple accept="image/*"><br><br>

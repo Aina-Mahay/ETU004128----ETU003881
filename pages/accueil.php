@@ -13,7 +13,7 @@ $objets = getObjets($id_categorie, $nom_objet, $disponible);
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <div class="container mt-4">
-    <a href="upload.php" class="btn btn-success mt-3">
+    <a href="ajout.php" class="btn btn-success mt-3">
         Ajouter un objet
     </a>
 
