@@ -64,5 +64,44 @@ $images = getObjetById($id);
         </div>
     </div>
 </div>
+
+<div class="mt-5">
+    <h4>Liste des emprunts en cours</h4>
+    <?php if (!empty($emprunts)): ?>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID Emprunt</th>
+                    <th>Membre</th>
+                    <th>Date Emprunt</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($emprunts as $e): ?>
+                    <tr>
+                        <td><?= ($e['id_emprunt']) ?></td>
+                        <td><?= ($e['pseudo']) ?></td>
+                        <td><?= ($e['date_emprunt']) ?></td>
+                        <td>
+                            <form action="retourner.php" method="post" class="d-flex gap-2">
+                                <input type="hidden" name="id_emprunt" value="<?= $e['id_emprunt'] ?>">
+                                <select name="etat_retour" class="form-select form-select-sm" required>
+                                    <option value="">-- Choisir --</option>
+                                    <option value="ok">OK</option>
+                                    <option value="abime">Abîmé</option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-primary">Retourner</button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    <?php else: ?>
+        <p class="text-muted">Aucun emprunt en cours pour cet objet.</p>
+    <?php endif; ?>
+</div>
+
 </body>
 </html>
