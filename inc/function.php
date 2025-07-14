@@ -35,41 +35,41 @@ function getCategories() {
 function getObjets($id_categorie, $nom_objet, $disponible) {
     $conn = dbconnect();
     $sql = "
-        SELECT o.*, c.nom_categorie, i.nom_image, e.date_retour
+        SELECT o.*, c.nom_categorie, i.nom_image,
+            (SELECT date_retour 
+             FROM emprunt_emprunt e 
+             WHERE e.id_objet = o.id_objet 
+             AND (e.date_retour IS NULL OR e.date_retour > CURDATE())
+             ORDER BY date_emprunt DESC 
+             LIMIT 1
+            ) AS date_retour
         FROM emprunt_objet o
         INNER JOIN emprunt_categorie_objet c ON o.id_categorie = c.id_categorie
         LEFT JOIN emprunt_images_objet i ON o.id_objet = i.id_objet
-        LEFT JOIN emprunt_emprunt e ON o.id_objet = e.id_objet AND e.date_retour IS NULL
-        WHERE 1=1
+        WHERE 1 = 1
     ";
 
-    $params = [];
-
     if ($id_categorie > 0) {
-        $sql .= " AND o.id_categorie = $id_categorie";
-        $params[] = $id_categorie;
+        $sql .= " AND o.id_categorie = " . intval($id_categorie);
     }
 
     if (!empty($nom_objet)) {
-        $sql .= " AND o.nom_objet LIKE '%%$nom_objet%%'";
-
-        $params[] = "%" . $nom_objet . "%";
+        $safe_nom = mysqli_real_escape_string($conn, $nom_objet);
+        $sql .= " AND o.nom_objet LIKE '%$safe_nom%'";
     }
 
     if ($disponible) {
-        $sql .= " AND e.date_retour IS NULL";
-        $sql .= " AND o.id_objet NOT IN (SELECT id_objet FROM emprunt_emprunt WHERE date_retour IS NULL)";
+        $sql .= "
+            AND o.id_objet NOT IN (
+                SELECT id_objet FROM emprunt_emprunt 
+                WHERE date_retour IS NULL OR date_retour > CURDATE()
+            )
+        ";
     }
 
     $sql .= " GROUP BY o.id_objet ORDER BY o.nom_objet";
 
     $stmt = mysqli_prepare($conn, $sql);
-
-    // if ($params) {
-    //     $types = str_repeat("s", count($params));
-    //     mysqli_stmt_bind_param($stmt, $types, ...$params);
-    // }
-
     mysqli_stmt_execute($stmt);
     $result = mysqli_stmt_get_result($stmt);
 
@@ -78,8 +78,35 @@ function getObjets($id_categorie, $nom_objet, $disponible) {
         $objets[] = $row;
     }
     return $objets;
-    
 }
+
+function getObjetById($id) {
+    $conn = dbconnect();
+
+    $sql = "SELECT o.*, c.nom_categorie, i.nom_image, 
+                   (SELECT ee.date_retour 
+                    FROM emprunt_emprunt ee 
+                    WHERE ee.id_objet = o.id_objet 
+                    ORDER BY ee.date_retour DESC 
+                    LIMIT 1) AS date_retour
+            FROM emprunt_objet o
+            INNER JOIN emprunt_categorie_objet c ON o.id_categorie = c.id_categorie
+            LEFT JOIN emprunt_images_objet i ON o.id_objet = i.id_objet
+            WHERE o.id_objet = ?
+            LIMIT 1";
+
+    $stmt = mysqli_prepare($conn, $sql);
+    if (!$stmt) {
+        die("Erreur SQL : " . mysqli_error($conn));
+    }
+
+    mysqli_stmt_bind_param($stmt, 'i', $id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    return mysqli_fetch_assoc($result);
+}
+
 
 function uploadImages($files, $targetDir)
 {

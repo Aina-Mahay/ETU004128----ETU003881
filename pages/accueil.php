@@ -14,14 +14,13 @@ $objets = getObjets($id_categorie, $nom_objet, $disponible);
 
 <div class="container mt-4">
     <a href="upload.php" class="btn btn-success mt-3">
-    Ajouter un objet
-</a>
+        Ajouter un objet
+    </a>
 
     <h2 class="mb-4">Liste des objets</h2>
 
     <form method="get" class="mb-4">
         <div class="row g-3 align-items-center">
-            <!-- Catégorie -->
             <div class="col-md-3">
                 <label for="categorie" class="form-label">Catégorie :</label>
                 <select name="categorie" id="categorie" class="form-select">
@@ -34,13 +33,11 @@ $objets = getObjets($id_categorie, $nom_objet, $disponible);
                 </select>
             </div>
 
-            <!-- Nom de l'objet -->
             <div class="col-md-3">
                 <label for="nom" class="form-label">Nom de l'objet :</label>
                 <input type="text" name="nom" id="nom" class="form-control" value="<?= htmlspecialchars($nom_objet) ?>">
             </div>
 
-            <!-- Disponible -->
             <div class="col-md-2">
                 <label class="form-label">Disponibilité :</label><br>
                 <div class="form-check">
@@ -51,7 +48,6 @@ $objets = getObjets($id_categorie, $nom_objet, $disponible);
                 </div>
             </div>
 
-            <!-- Bouton filtrer -->
             <div class="col-md-2 align-self-end">
                 <button type="submit" class="btn btn-primary w-100">Filtrer</button>
             </div>
@@ -63,7 +59,9 @@ $objets = getObjets($id_categorie, $nom_objet, $disponible);
                 <th>Image</th>
                 <th>Objet</th>
                 <th>Catégorie</th>
-                <th>Date de retour (si emprunt en cours)</th>
+                <th>Date de retour</th>
+                <th>Action</th>
+
             </tr>
         </thead>
         <tbody>
@@ -80,11 +78,25 @@ $objets = getObjets($id_categorie, $nom_objet, $disponible);
                         }
                         ?>
                     </td>
-                    <td><?= htmlspecialchars($obj['nom_objet']) ?></td>
+                    <td>
+                        <a href="objet.php?id=<?= $obj['id_objet'] ?>">
+                            <?= htmlspecialchars($obj['nom_objet']) ?>
+                        </a>
+                    </td>
                     <td><?= htmlspecialchars($obj['nom_categorie']) ?></td>
                     <td>
                         <?= is_null($obj['date_retour']) ? '<span class="badge bg-success text-dark">Disponible</span>' : htmlspecialchars($obj['date_retour']) ?>
                     </td>
+                    <td>
+                        <?php if (is_null($obj['date_retour'])): ?>
+                            <a href="emprunter.php?id=<?= $obj['id_objet'] ?>" class="btn btn-sm btn-primary">
+                                Emprunter
+                            </a>
+                        <?php else: ?>
+                            <span class="text-muted">Indisponible</span>
+                        <?php endif; ?>
+                    </td>
+
                 </tr>
             <?php endforeach; ?>
         </tbody>
